@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 	int depth = 0;
 	int horizontal = 0;
 	while ((read = getline(&line, &len, fp)) != -1) {
-		line[ strlen(line) - 1 ] = '\0'; // drop newline
+        line[ strlen(line) - 1 ] = '\0'; // drop newline
 
         //char *saveptr;
         char *saveptr, *direction, *str_value;
