@@ -16,24 +16,39 @@ int main(int argc, char **argv) {
 
     int depth = 0;
     int horizontal = 0;
+    int aim = 0;
     while ((read = getline(&line, &len, fp)) != -1) {
         line[ strlen(line) - 1 ] = '\0'; // drop newline
 
-        //char *saveptr;
         char *saveptr, *direction, *str_value;
         int value;
         direction = strtok_r(line, " ", &saveptr); // first token
         str_value = strtok_r(NULL, " ", &saveptr); // second token
         value = atoi(str_value);
 
+
         if(strcmp(direction, "forward") == 0) {
+
+            //forward X does two things:
+            //It increases your horizontal position by X units.
             horizontal += value;
+
+            //It increases your depth by your aim multiplied by X.
+            depth += aim*value;
+
         } else if (strcmp(direction, "down") == 0) {
-            depth += value;
+
+            //down X increases your aim by X units.
+            aim += value;
+
         } else if (strcmp(direction, "up") == 0) {
-            depth -= value;
+
+            //up X decreases your aim by X units.
+            aim -= value;
+
         } else {
             printf("'%s' is not a valid direction\n", direction);
+            exit(-1);
         }
     }
 
