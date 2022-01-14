@@ -20,7 +20,7 @@ void slide_window(window *w, int next_line) {
 int main(int argc, char **argv) {
 
 	if (argc != 2) {
-        printf("Not enough arguments provided\n");
+		printf("Not enough arguments provided\n");
 	}
 
 	FILE * fp;
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-    window curr_w = {0,0,0};
+	window curr_w = {0,0,0};
 	int prev_window_total = 0;
 	int count = 0;
 
@@ -41,13 +41,13 @@ int main(int argc, char **argv) {
 		line[ strlen(line) - 1 ] = '\0'; // drop newline
 		int line_num = atoi(line); // convert to int
 
-        slide_window(&curr_w, line_num);
+		slide_window(&curr_w, line_num);
 
 		if (curr_w.total > prev_window_total) count++; // count
 		prev_window_total = curr_w.total;
-    }
+	}
 
-    // hacky way to account for starting loops edge case without reading the file from the third line
+	// hacky way to account for starting loops edge case without reading the file from the third line
 	count -= 3;
 	printf("number of larger measurements is %d\n", count);
 
