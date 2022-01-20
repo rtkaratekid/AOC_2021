@@ -1,8 +1,4 @@
 /*
-You need to use the binary numbers in the diagnostic report to generate two new binary numbers (called the gamma rate and the epsilon rate). The power consumption can then be found by multiplying the gamma rate by the epsilon rate.
-
-Each bit in the gamma rate can be determined by finding the most common bit in the corresponding position of all numbers in the diagnostic report. For example, given the following diagnostic report:
-
 00100
 11110
 10110
@@ -17,9 +13,7 @@ Each bit in the gamma rate can be determined by finding the most common bit in t
 01010
 
 Considering only the first bit of each number, there are five 0 bits and seven 1 bits. Since the most common bit is 1, the first bit of the gamma rate is 1.
-
 The most common second bit of the numbers in the diagnostic report is 0, so the second bit of the gamma rate is 0.
-
 The most common value of the third, fourth, and fifth bits are 1, 1, and 0, respectively, and so the final three bits of the gamma rate are 110.
 
 So, the gamma rate is the binary number 10110, or 22 in decimal.
@@ -71,34 +65,55 @@ int main(int argc, char **argv) {
         iterations++;
     }
 
+    // correct to this point
+    
+
     // Now we have all the input in memory and don't need to loop through the file anymore
     printf("calculations\n");
-    int gamma = 0;
-    int epsilon = 0;
-    int columns = line_len - 1; //assuming all columns are the same length
-    for(int i = 0; i < columns; i++) {
-        // get the most common/least common value in column
+    unsigned int gamma = 0;
+    //int num_columns = line_len - 1; //assuming all rows are the same length
+    int num_columns = 12;
+    printf("num cols: %d\n", num_columns);
+    // for each column, starting from leftmost
+    for(int i = num_columns-1; i >= 0; i--) {
+
         int value_count = 0;
+        // for each value in inputs
         for(int j = 0; j < lines; j++) {
-            // we bit shift to get the next bit from the input value
-            if(inputs[j] >> i % 2 == 0) { // means the first bit is 0
+
+            // we bit shift to get the next bit column from the input values
+            unsigned int shift = inputs[j] >> i;
+            if(shift % 2 == 0) { // if the rightmost bit is 0
+                printf("yes\n\n");
                 value_count--;
             } else {
+                printf("no\n\n");
                 value_count++;
             }
         }
 
-        // if gamma count is negative, then we have more 0's and the gamma bit is 0
+        printf("Column: %d Most common value: ", i);
+        // we have more 0's and the gamma bit is 0
         if(value_count < 0) {
+            printf("0\n");
             gamma |= (0 << i);
-            epsilon |= (1 << i);
-        } else { // if gamma count is positive, then we have more 1's and the gamma bit is 1
+        } else { // we have more 1's and the gamma bit is 1
+            printf("1\n");
             gamma |= (1 << i);
-            epsilon |= (0 << i);
         }
     }
 
-    printf("Gamma: %d\nEpsilon: %d\nMulitplied: %d\n", gamma, epsilon, gamma*epsilon);
+    // epsilon is bitwise complement of gamma;
+    unsigned int epsilon = ~gamma;
+    epsilon &= 0x00000FFF; // set upper 20 bits to 0, they'll be 1 by default since we only have 12 bits in our input
+    /*
+    char g_buf[33];
+    char e_buf[33];
+    itoa(gamma, g_buf, 2);
+    itoa(epsilon, e_buf, 2);
+    printf("Gamma: %d %s\nEpsilon: %d %s\nPower: %d\n", gamma, g_buf, epsilon, e_buf, gamma*epsilon);
+    */
+    printf("Gamma: %u\nEpsilon: %u\nPower: %u\n", gamma, epsilon, gamma*epsilon);
 
     return 0;
 }
