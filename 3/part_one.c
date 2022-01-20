@@ -9,7 +9,6 @@ int main(int argc, char **argv) {
     size_t len = 0;
     ssize_t line_len;
 
-    printf("opening file\n");
     fp = fopen(argv[1], "r");
     if (fp == NULL) {
         exit(EXIT_FAILURE);
