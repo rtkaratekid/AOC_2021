@@ -28,6 +28,7 @@ Use the binary numbers in your diagnostic report to calculate the oxygen generat
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 static int lines = 1000; // bash cat input | wc -l
@@ -121,6 +122,33 @@ void get_col_vals(int com_vals[num_cols], int ins[lines]) {
 
 }
 
+int vals_to_int(int vals[num_cols], bool o2) {
+    int ret = 0;
+    int j = 0; // so we can shift right to left
+
+    // go through list from right to left adding that bit to ret in the
+    // correct index
+    for(int i = num_cols-1; i >= 0; i--, j++) {
+
+        switch(vals[i]) {
+            case 0:
+            case 1:
+                ret |= (vals[i] << j);
+                break;
+            case -1:
+                if(o2) {
+                    ret |= (1 << j);
+                } else { // co2
+                    ret |= 0;
+                }
+                break;
+        }
+
+    }
+
+    return(ret);
+}
+
 /*
 To find oxygen generator rating, determine the most common value (0 or 1) in
 the current bit position, and keep only numbers with that bit in that position.
@@ -129,7 +157,21 @@ considered.
 */
 int get_o2_rating(int com_vals[num_cols], int ins[lines]) {
 
-    return 0;
+    // So, with this filtering method, we're basically looking for a value that
+    // just matches our filter. Meaning if our filter is 1101-1 then we're 
+    // looking for a number that matches 11011 with all the bits in those columns
+    // which means that the filter is basically our number right?
+    // If so, I just need to convert the filter to the proper number and verify
+    // that I have that number in the input list and that should give me the o2
+
+    int o2_filter = vals_to_int(com_vals, true);
+    for(int i = 0; i < lines; i++) {
+        if(ins[i] == o2_filter)
+            return(ins[i]);
+    }
+
+    // my logic was hella wrong
+    return -1;
 }
 
 /*
@@ -138,7 +180,28 @@ current bit position, and keep only numbers with that bit in that position.
 If 0 and 1 are equally common, keep values with a 0 in the position being
 considered.
 */
-int get_co2_rating(int com_vals[num_cols], int ins[lines]) {
-    return 0;
-}
 
+int get_co2_rating(int com_vals[num_cols], int ins[lines]) {
+
+    int least_com_vals[num_cols];
+    for(int i = 0; i < num_cols; i++) {
+        switch(com_vals[i]) {
+            case 0:
+            case 1:
+                least_com_vals[i] = (~com_vals[i]);
+                break;
+            case -1:
+                least_com_vals[i] = 0;
+                break;
+        }
+    }
+
+    int co2_filter = vals_to_int(least_com_vals, true);
+    for(int i = 0; i < lines; i++) {
+        if(ins[i] == co2_filter)
+            return(ins[i]);
+    }
+
+    // my logic was hella wrong
+    return -1;
+}
